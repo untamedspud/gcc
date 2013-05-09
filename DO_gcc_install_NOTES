@@ -1,0 +1,377 @@
+
+# #####
+# 2013-may-7
+# #####
+
+
+# Prerequisites for installing gcc:
+# ftp://gcc.gnu.org/pub/gcc/infrastructure/
+# Note:  Looks like the packages don't need to be installed on the system, but can be brought
+#        down into the gcc source tree and installed there.
+# ##############################################################################################
+
+
+
+# makeinfo, if you want it.
+mkdir -p /usr/local/src/gcc/textinfo
+cd /usr/local/src/gcc/textinfo
+wget http://ftp.gnu.org/gnu/texinfo/texinfo-5.1.tar.xz
+tar xvf textinfo-5.1.tar.xz
+cd textinfo-5.1
+./configure
+make check
+make install
+
+
+
+
+
+mkdir -p /usr/local/src/gcc/gmp
+cd /usr/local/src/gcc/gmp
+wget ftp://gcc.gnu.org/pub/gcc/infrastructure/gmp-4.3.2.tar.bz2
+tar xvf ./gmp-4.3.2.tar.bz2
+cd gmp-4.3.2
+make install
+make check
+
+
+	# [root@titanium2 gmp-4.3.2]# ls -lat /usr/local/lib/*
+	# -rw-r--r-- 1 root root 999690 May  7 14:41 /usr/local/lib/libgmp.a
+	# -rwxr-xr-x 1 root root    785 May  7 14:41 /usr/local/lib/libgmp.la
+	# lrwxrwxrwx 1 root root     15 May  7 14:41 /usr/local/lib/libgmp.so -> libgmp.so.3.5.2
+	# lrwxrwxrwx 1 root root     15 May  7 14:41 /usr/local/lib/libgmp.so.3 -> libgmp.so.3.5.2
+	# -rwxr-xr-x 1 root root 386110 May  7 14:41 /usr/local/lib/libgmp.so.3.5.2
+	# [root@titanium2 gmp-4.3.2]# 
+
+
+mkdir -p /usr/local/src/gcc/mpfr
+cd /usr/local/src/gcc/mpfr
+wget ftp://gcc.gnu.org/pub/gcc/infrastructure/mpfr-2.4.2.tar.bz2
+cd mpfr-2.4.2
+LDFLAGS=-L/usr/local/lib; CPPFLAGS=-I/usr/local/include
+echo "Headers in $CPPFLAGS, libraries located in $LIBS."
+./configure
+make install
+make check
+
+	# -rw-r--r-- 1 root root 816450 May  7 14:56 /usr/local/lib/libmpfr.a
+	# -rwxr-xr-x 1 root root    941 May  7 14:56 /usr/local/lib/libmpfr.la
+	# lrwxrwxrwx 1 root root     16 May  7 14:56 /usr/local/lib/libmpfr.so -> libmpfr.so.1.2.2
+	# lrwxrwxrwx 1 root root     16 May  7 14:56 /usr/local/lib/libmpfr.so.1 -> libmpfr.so.1.2.2
+	# -rwxr-xr-x 1 root root 346089 May  7 14:56 /usr/local/lib/libmpfr.so.1.2.2
+	#
+
+
+# this one needs mpfr (above) installed first.
+
+mkdir -p /usr/local/src/gcc/mpc
+cd /usr/local/src/gcc/mpc
+wget ftp://gcc.gnu.org/pub/gcc/infrastructure/mpc-0.8.1.tar.gz
+tar xvf ./mpc-0.8.1.tar.gz
+cd mpc-0.8.1
+./configure
+make install
+make check
+
+	# -rw-r--r-- 1 root root 200654 May  7 14:59 /usr/local/lib/libmpc.a
+	# -rwxr-xr-x 1 root root    941 May  7 14:59 /usr/local/lib/libmpc.la
+	# lrwxrwxrwx 1 root root     15 May  7 14:59 /usr/local/lib/libmpc.so -> libmpc.so.2.0.0
+	# lrwxrwxrwx 1 root root     15 May  7 14:59 /usr/local/lib/libmpc.so.2 -> libmpc.so.2.0.0
+	# -rwxr-xr-x 1 root root  89546 May  7 14:59 /usr/local/lib/libmpc.so.2.0.0
+
+
+
+mkdir /usr/local/src/gcc/gcc
+cd /usr/local/src/gcc/gcc
+svn checkout svn://gcc.gnu.org/svn/gcc/trunk gcc
+mkdir /usr/local/src/gcc/gcc/objdir
+cd /usr/local/src/gcc/gcc/gcc
+./contrib/download_prerequisites
+cd /usr/local/src/gcc/gcc/objdir
+/usr/local/src/gcc/gcc/gcc/configure --with-gmp=/usr/local --with-mpfr=/usr/local --with-mpc=/usr/local
+make
+
+
+
+
+# -rw-r--r-- 1 root root 84258 May  7 14:41 /usr/local/include/gmp.h
+# -rw-r--r-- 1 root root 13031 May  7 14:59 /usr/local/include/mpc.h
+# -rw-r--r-- 1 root root  6165 May  7 14:56 /usr/local/include/mpf2mpfr.h
+# -rw-r--r-- 1 root root 42837 May  7 14:56 /usr/local/include/mpfr.h
+
+
+exit
+
+
+# ------------------------------------------------------------------------------------------------------------------------------
+
+
+#! /bin/sh
+
+# Download some prerequisites needed by gcc.
+# Run this from the top level of the gcc source tree and the gcc
+# build will do the right thing.
+#
+# (C) 2010 Free Software Foundation
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see http://www.gnu.org/licenses/.
+
+MPFR=mpfr-2.4.2
+GMP=gmp-4.3.2
+MPC=mpc-0.8.1
+
+wget ftp://gcc.gnu.org/pub/gcc/infrastructure/$MPFR.tar.bz2 || exit 1
+tar xjf $MPFR.tar.bz2 || exit 1
+ln -sf $MPFR mpfr || exit 1
+
+wget ftp://gcc.gnu.org/pub/gcc/infrastructure/$GMP.tar.bz2 || exit 1
+tar xjf $GMP.tar.bz2  || exit 1
+ln -sf $GMP gmp || exit 1
+
+wget ftp://gcc.gnu.org/pub/gcc/infrastructure/$MPC.tar.gz || exit 1
+tar xzf $MPC.tar.gz || exit 1
+ln -sf $MPC mpc || exit 1
+
+rm $MPFR.tar.bz2 $GMP.tar.bz2 $MPC.tar.gz || exit 1
+
+
+
+
+
+
+
+========================================================
+
+
+
+ln -s /usr/local /usr/local/x86_64-unknown-linux-gnu
+
+
+
+
+
+
+
+
+====================================================================================================
+
+#!/bin/bash
+#! PUT THIS FILE IN /usr/local/src/gcc/gcc/DO
+#! and then run it.
+#!
+#! ###################################################################################################
+#!  IN: /usr/local/src/gcc/gcc/objdir
+
+ROOT=/usr/local/src/gcc/gcc
+OBJDIR=${ROOT}/objdir
+
+
+
+cd ${ROOT}
+svn checkout svn://gcc.gnu.org/svn/gcc/trunk gcc 
+
+
+cd ${ROOT}/gcc
+./contrib/download_prerequisites
+
+mkdir -p ${OBJDIR}
+cd ${OBJDIR}
+/usr/local/src/gcc/gcc/gcc/configure ##### --with-gmp=/usr/local --with-mpfr=/usr/local --with-mpc=/usr/local
+
+make
+
+
+
+
+
+
+
+
+====================================================================================================
+
+[root@titanium2 objdir]# yum provides "*/gnu/stubs.h"
+Loaded plugins: product-id, rhnplugin, security, subscription-manager
+Updating certificate-based repositories.
+rhel-x86_64-server-6/filelists                                                                                                                   |  13 MB     00:00     
+glibc-headers-2.12-1.7.el6_0.3.x86_64 : Header files for development using standard C libraries.
+Repo        : rhel-x86_64-server-6
+Matched from:
+Filename    : /usr/include/gnu/stubs.h
+
+
+
+glibc-headers-2.12-1.47.el6.x86_64 : Header files for development using standard C libraries.
+Repo        : rhel-x86_64-server-6
+Matched from:
+Filename    : /usr/include/gnu/stubs.h
+
+
+
+glibc-headers-2.12-1.25.el6_1.3.x86_64 : Header files for development using standard C libraries.
+Repo        : rhel-x86_64-server-6
+Matched from:
+Filename    : /usr/include/gnu/stubs.h
+
+
+
+1:compat-glibc-headers-2.5-46.2.x86_64 : Header files for development using standard C libraries.
+Repo        : rhel-x86_64-server-6
+Matched from:
+Filename    : /usr/lib/x86_64-redhat-linux5E/include/gnu/stubs.h
+
+
+
+glibc-headers-2.12-1.47.el6_2.5.x86_64 : Header files for development using standard C libraries.
+Repo        : rhel-x86_64-server-6
+Matched from:
+Filename    : /usr/include/gnu/stubs.h
+
+
+
+glibc-headers-2.12-1.7.el6.x86_64 : Header files for development using standard C libraries.
+Repo        : rhel-x86_64-server-6
+Matched from:
+Filename    : /usr/include/gnu/stubs.h
+
+
+
+glibc-headers-2.12-1.25.el6.x86_64 : Header files for development using standard C libraries.
+Repo        : rhel-x86_64-server-6
+Matched from:
+Filename    : /usr/include/gnu/stubs.h
+
+
+
+glibc-headers-2.12-1.7.el6_0.4.x86_64 : Header files for development using standard C libraries.
+Repo        : rhel-x86_64-server-6
+Matched from:
+Filename    : /usr/include/gnu/stubs.h
+
+
+
+glibc-headers-2.12-1.7.el6_0.5.x86_64 : Header files for development using standard C libraries.
+Repo        : rhel-x86_64-server-6
+Matched from:
+Filename    : /usr/include/gnu/stubs.h
+
+
+
+
+
+glibc-headers-2.12-1.47.el6_2.5.x86_64 : Header files for development using standard C libraries.
+Repo        : installed
+Matched from:
+Filename    : /usr/include/gnu/stubs.h
+
+
+
+1:compat-glibc-headers-2.5-46.2.x86_64 : Header files for development using standard C libraries.
+Repo        : installed
+Matched from:
+Filename    : /usr/lib/x86_64-redhat-linux5E/include/gnu/stubs.h
+
+
+
+[root@titanium2 objdir]# 
+
+
+
+
+
+[root@titanium2 objdir]# yum install glibc-devel-2.12-1.47.el6_2.5.i686
+Loaded plugins: product-id, rhnplugin, security, subscription-manager
+Updating certificate-based repositories.
+Setting up Install Process
+Resolving Dependencies
+--> Running transaction check
+---> Package glibc-devel.i686 0:2.12-1.47.el6_2.5 will be installed
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+========================================================================================================================================================================
+ Package                               Arch                           Version                                      Repository                                      Size
+========================================================================================================================================================================
+Installing:
+ glibc-devel                           i686                           2.12-1.47.el6_2.5                            rhel-x86_64-server-6                           967 k
+
+Transaction Summary
+========================================================================================================================================================================
+Install       1 Package(s)
+
+Total download size: 967 k
+Installed size: 0  
+Is this ok [y/N]: y
+Downloading Packages:
+glibc-devel-2.12-1.47.el6_2.5.i686.rpm                                                                                                           | 967 kB     00:00     
+Running rpm_check_debug
+Running Transaction Test
+Transaction Test Succeeded
+Running Transaction
+  Installing : glibc-devel-2.12-1.47.el6_2.5.i686                                                                                                                   1/1 
+Installed products updated.
+
+Installed:
+  glibc-devel.i686 0:2.12-1.47.el6_2.5                                                                                                                                  
+
+Complete!
+[root@titanium2 objdir]#
+
+
+
+
+
+11:40am[root@Aluminum]src as root#  yum install binutils-devel-2.17.50.0.6-2.el5.i386
+Loaded plugins: rhnplugin
+pgdg90                                                                                                                                                            | 1.2 kB     00:00     
+http://yum.pgsqlrpms.org/9.0/redhat/rhel-5Server-i386/repodata/repomd.xml: [Errno -1] Error importing repomd.xml for pgdg90: Damaged repomd.xml file
+Trying other mirror.
+Excluding Packages from Red Hat Enterprise Linux (v. 5 for 32-bit x86)
+Finished
+Setting up Install Process
+Resolving Dependencies
+--> Running transaction check
+---> Package binutils-devel.i386 0:2.17.50.0.6-2.el5 set to be updated
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+=========================================================================================================================================================================================
+ Package                                      Arch                               Version                                          Repository                                        Size
+=========================================================================================================================================================================================
+Installing:
+ binutils-devel                               i386                               2.17.50.0.6-2.el5                                rhel-i386-server-5                               606 k
+
+Transaction Summary
+=========================================================================================================================================================================================
+Install       1 Package(s)
+Upgrade       0 Package(s)
+
+Total download size: 606 k
+Is this ok [y/N]: y
+Downloading Packages:
+binutils-devel-2.17.50.0.6-2.el5.i386.rpm                                                                                                                         | 606 kB     00:00     
+Running rpm_check_debug
+Running Transaction Test
+Finished Transaction Test
+Transaction Test Succeeded
+Running Transaction
+  Installing     : binutils-devel                                                                                                                                                    1/1 
+
+Installed:
+  binutils-devel.i386 0:2.17.50.0.6-2.el5                                                                                                                                                
+
+Complete!
+11:41am[root@Aluminum]src as root#  
+

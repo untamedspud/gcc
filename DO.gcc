@@ -1,0 +1,65 @@
+#!/bin/bash
+#! PUT THIS FILE IN /usr/local/src/gcc
+#! and then run it.  At least, that's the plan!
+#!
+#! 2013-may-9
+#!
+#! ###################################################################################################
+#!  IN: /usr/local/src/gcc/gcc/objdir
+
+ROOT=/usr/local/src/gcc
+OBJDIR=${ROOT}/objdir
+
+
+# We need some development environment in our path, at least for now
+if [ 0 ]
+then
+	yum install binutils-devel-2.17.50.0.6-2.el5.i386	# libiberty.a
+	yum install glibc-devel-2.12-1.47.el6_2.5.i686		# /usr/local/gnu/stubs.h
+fi
+
+
+
+cd ${ROOT}
+pwd
+if [ -e ${ROOT}/gcc ]
+then
+	echo "***********************************************************************************************"
+	echo "A gcc directory already exists at ${ROOT}/gcc.  Skipping svn checkout."
+	echo "***********************************************************************************************"
+else
+	echo ""
+	echo ""
+	echo ""
+	echo "Checking out source code..."
+	svncheckout svn://gcc.gnu.org/svn/gcc/trunk gcc 
+fi
+
+
+
+
+cat<<ENDCAT10
+***************************
+* 
+* DOWNLOADING PREREQUISITES
+* 
+***************************
+ENDCAT10
+
+cd ${ROOT}/gcc
+pwd
+./contrib/download_prerequisites | cat 
+
+cat<<ENDCAT10
+***************************
+* 
+* COMPILER BUILDING BEGINS
+* 
+***************************
+ENDCAT10
+mkdir -p ${OBJDIR}
+cd ${OBJDIR}
+pwd
+/usr/local/src/gcc/gcc/gcc/configure ##### --with-gmp=/usr/local --with-mpfr=/usr/local --with-mpc=/usr/local
+
+make
